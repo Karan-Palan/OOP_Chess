@@ -8,11 +8,18 @@ interface Props {
 export default function Tile({ number, image }: Props) {
   return number % 2 === 0 ? (
     <div className="tile white-tile">
-      <img src={image} />
+      {/* Converting an image to background div */}
+      <div
+        style={{ backgroundImage: `url(${image})` }}
+        className="chess-peice"
+      ></div>
     </div>
   ) : (
     <div className="tile black-tile">
-      <img src={image} />
+      <div
+        style={{ backgroundImage: `url(${image})` }}
+        className="chess-peice"
+      ></div>
     </div>
   );
 }
