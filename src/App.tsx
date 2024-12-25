@@ -1,12 +1,12 @@
-import './App.css'
+import "./App.css";
+import ChessBoard from "./components/Chessboard";
 
 function App() {
-
   return (
-    <>
-      react chess
-    </>
-  )
+    <div id="app">
+      <ChessBoard />
+    </div>
+  );
 }
 
-export default App
+export default App;
