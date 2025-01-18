@@ -4,35 +4,68 @@ import "./Chessboard.css";
 const verticalAxis = ["1", "2", "3", "4", "5", "6", "7", "8"];
 const horizontalAxis = ["a", "b", "c", "d", "e", "f", "g", "h"];
 
-interface Peice {
-  image: string | undefined;
+interface piece {
+  image: string;
   x: number;
   y: number;
 }
 
-const peices: Peice[] = [];
+const pieces: piece[] = [];
 
-// For rendering other peices
+// For rendering other pieces
 for (let p = 0; p < 2; p++) {
   const type = p === 0 ? "b" : "w";
   const y = p === 0 ? 7 : 0;
-  peices.push({ image: `assets/images/rook_${type}.png`, x: 0, y });
-  peices.push({ image: `assets/images/rook_${type}.png`, x: 7, y });
-  peices.push({ image: `assets/images/knight_${type}.png`, x: 1, y });
-  peices.push({ image: `assets/images/knight_${type}.png`, x: 6, y });
-  peices.push({ image: `assets/images/bishop_${type}.png`, x: 2, y });
-  peices.push({ image: `assets/images/bishop_${type}.png`, x: 5, y });
-  peices.push({ image: `assets/images/queen_${type}.png`, x: 3, y });
-  peices.push({ image: `assets/images/king_${type}.png`, x: 4, y });
+  pieces.push({ image: `assets/images/rook_${type}.png`, x: 0, y });
+  pieces.push({ image: `assets/images/rook_${type}.png`, x: 7, y });
+  pieces.push({ image: `assets/images/knight_${type}.png`, x: 1, y });
+  pieces.push({ image: `assets/images/knight_${type}.png`, x: 6, y });
+  pieces.push({ image: `assets/images/bishop_${type}.png`, x: 2, y });
+  pieces.push({ image: `assets/images/bishop_${type}.png`, x: 5, y });
+  pieces.push({ image: `assets/images/queen_${type}.png`, x: 3, y });
+  pieces.push({ image: `assets/images/king_${type}.png`, x: 4, y });
 }
-// Rendering the Black peices
+// Rendering the Black pawns
 for (let i = 0; i < 8; i++) {
-  peices.push({ image: "assets/images/pawn_b.png", x: i, y: 6 });
+  pieces.push({ image: "assets/images/pawn_b.png", x: i, y: 6 });
 }
 
-// Rendering the White peices
+// Rendering the White pawns
 for (let i = 0; i < 8; i++) {
-  peices.push({ image: "assets/images/pawn_w.png", x: i, y: 1 });
+  pieces.push({ image: "assets/images/pawn_w.png", x: i, y: 1 });
+}
+
+let activePiece: HTMLElement | null = null;
+
+function grabPiece(e: React.MouseEvent<HTMLDivElement, MouseEvent>) {
+  const element = e.target as HTMLElement;
+  if (element.classList.contains("chess-piece")) {
+    console.log(element);
+    const x = e.clientX - 50;
+    const y = e.clientY - 50;
+    element.style.position = "absolute";
+    element.style.left = `${x}px`;
+    element.style.top = `${y}px`;
+  }
+
+  activePiece = element; //recognizes it as the active piece
+}
+
+function movePiece(e: React.MouseEvent) {
+  if (activePiece) {
+    // utilizes the active piece and not other peices
+    const x = e.clientX - 50;
+    const y = e.clientY - 50;
+    activePiece.style.position = "absolute";
+    activePiece.style.left = `${x}px`;
+    activePiece.style.top = `${y}px`;
+  }
+}
+
+function dropPiece(e: React.MouseEvent) {
+  if (activePiece) {
+    activePiece = null;
+  }
 }
 
 export default function ChessBoard() {
@@ -40,8 +73,8 @@ export default function ChessBoard() {
   for (let j = verticalAxis.length - 1; j >= 0; j--) {
     for (let i = 0; i < horizontalAxis.length; i++) {
       const number = j + i + 2; // index start at 0
-      let image = undefined;
-      peices.forEach((p) => {
+      let image = "";
+      pieces.forEach((p) => {
         if (p.x === i && p.y === j) {
           image = p.image;
         }
@@ -49,5 +82,14 @@ export default function ChessBoard() {
       board.push(<Tile key={`${j} ${i}`} image={image} number={number} />);
     }
   }
-  return <div id="chessboard">{board}</div>;
+  return (
+    <div
+      onMouseMove={(e) => movePiece(e)}
+      onMouseDown={(e) => grabPiece(e)}
+      onMouseUp={(e) => dropPiece(e)}
+      id="chessboard"
+    >
+      {board}
+    </div>
+  );
 }
