@@ -9,7 +9,7 @@ Summary and learnings:
 
 Chessboard creation logic (2-d array):
 
-```jsx
+```tsx
 const verticalAxis = ["1", "2", "3", "4", "5", "6", "7", "8"];
 const horizontalAxis = ["a", "b", "c", "d", "e", "f", "g", "h"];
 
@@ -40,7 +40,8 @@ export default function ChessBoard() {
 place-content : center place object in the middle of div
 
 Rendering the pieces:
-```jsx
+
+```tsx
 interface piece {
   image: string | undefined;
   x: number;
@@ -69,14 +70,17 @@ for (let i = 0; i < 8; i++) {
 
 Rendering the image as a background image so the browser doesn't think it is a file:
 
-```jsx
-{image && (
-        <div
-          style={{ backgroundImage: `url(${image})` }}
-          className="chess-piece"
-        ></div>
-)}
+```tsx
+{
+  image && (
+    <div
+      style={{ backgroundImage: `url(${image})` }}
+      className="chess-piece"
+    ></div>
+  );
+}
 ```
+
 image != null && {render} is same as image &&
 
 </details>
@@ -84,12 +88,12 @@ image != null && {render} is same as image &&
 <details>
 <summary>Moving the pieces</summary>
 
-```jsx
+```tsx
 function grabPiece(e: React.MouseEvent<HTMLDivElement, MouseEvent>) {
   const element = e.target as HTMLElement;
   if (element.classList.contains("chess-piece")) {
-  // change the x and y postions
-}
+    // change the x and y postions
+  }
   // recognize the grabbed element as the active piece
 }
 
@@ -109,6 +113,17 @@ function dropPiece(e: React.MouseEvent) {
     activePiece = null;
   }
 }
+```
+
+useRef - similiar to state, it persists between re-renders however does not re-render the component. You never want to set the value using ref as it does not update the state
+
+Logged the chessboard ref to get offsetX and Y
+
+```tsx
+const minX = chessboard.offsetLeft;
+const minY = chessboard.offsetLeft;
+activePiece.style.left = x < minX ? `${minX}px` : `${x}px`;
+activePiece.style.top = y < minY ? `${minY}px` : `${y}px`;
 ```
 
 </details>
