@@ -1,50 +1,114 @@
-# React + TypeScript + Vite
+# Chess
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Making a Chess game to improve my understanding of React, Typescript and Object Oriented Programming Principles.
 
-Currently, two official plugins are available:
+Summary and learnings:
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+<details>
+<summary>Initialization</summary>
 
-## Expanding the ESLint configuration
+Chessboard creation logic (2-d array):
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+```jsx
+const verticalAxis = ["1", "2", "3", "4", "5", "6", "7", "8"];
+const horizontalAxis = ["a", "b", "c", "d", "e", "f", "g", "h"];
 
-- Configure the top-level `parserOptions` property like this:
-
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+export default function ChessBoard() {
+  let board = [];
+  for (let j = verticalAxis.length - 1; j >= 0; j--) {
+    for (let i = 0; i < horizontalAxis.length; i++) {
+      const number = j + i + 2; // index start at 0
+      if (number % 2 === 0) {
+        board.push(
+          <div className="tile white-tile">
+            [{horizontalAxis[i]} {verticalAxis[j]}]
+          </div>
+        );
+      } else {
+        board.push(
+          <div className="tile black-tile">
+            [{horizontalAxis[i]} {verticalAxis[j]}]
+          </div>
+        );
+      }
+    }
+  }
+  return <div id="chessboard">{board}</div>;
+}
 ```
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+place-content : center place object in the middle of div
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
+Rendering the pieces:
+```jsx
+interface piece {
+  image: string | undefined;
+  x: number;
+  y: number;
+}
 
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
+const pieces: piece[] = [];
+
+// For rendering other pieces
+for (let p = 0; p < 2; p++) {
+  const type = p === 0 ? "b" : "w";
+  const y = p === 0 ? 7 : 0;
+  pieces.push({ image: `assets/images/rook_${type}.png`, x: {value keeps changing}, y })
+}
+// Rendering the Black pawns
+for (let i = 0; i < 8; i++) {
+  pieces.push({ image: "assets/images/pawn_b.png", x: i, y: 6 });
+}
+
+// Rendering the White pawns
+for (let i = 0; i < 8; i++) {
+  pieces.push({ image: "assets/images/pawn_w.png", x: i, y: 1 });
+}
+
 ```
+
+Rendering the image as a background image so the browser doesn't think it is a file:
+
+```jsx
+{image && (
+        <div
+          style={{ backgroundImage: `url(${image})` }}
+          className="chess-piece"
+        ></div>
+)}
+```
+image != null && {render} is same as image &&
+
+</details>
+
+<details>
+<summary>Moving the pieces</summary>
+
+```jsx
+function grabPiece(e: React.MouseEvent<HTMLDivElement, MouseEvent>) {
+  const element = e.target as HTMLElement;
+  if (element.classList.contains("chess-piece")) {
+  // change the x and y postions
+}
+  // recognize the grabbed element as the active piece
+}
+
+function movePiece(e: React.MouseEvent) {
+  if (activePiece) {
+    // utilizes the active piece and not other peices
+    const x = e.clientX - 50;
+    const y = e.clientY - 50;
+    activePiece.style.position = "absolute";
+    activePiece.style.left = `${x}px`;
+    activePiece.style.top = `${y}px`;
+  }
+}
+
+function dropPiece(e: React.MouseEvent) {
+  if (activePiece) {
+    activePiece = null;
+  }
+}
+```
+
+</details>
