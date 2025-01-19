@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import Tile from "../Tile/Tile";
 import "./Chessboard.css";
 
@@ -11,32 +11,34 @@ interface piece {
   y: number;
 }
 
-const pieces: piece[] = [];
+const initialBoardState: piece[] = [];
 
 // For rendering other pieces
 for (let p = 0; p < 2; p++) {
   const type = p === 0 ? "b" : "w";
   const y = p === 0 ? 7 : 0;
-  pieces.push({ image: `assets/images/rook_${type}.png`, x: 0, y });
-  pieces.push({ image: `assets/images/rook_${type}.png`, x: 7, y });
-  pieces.push({ image: `assets/images/knight_${type}.png`, x: 1, y });
-  pieces.push({ image: `assets/images/knight_${type}.png`, x: 6, y });
-  pieces.push({ image: `assets/images/bishop_${type}.png`, x: 2, y });
-  pieces.push({ image: `assets/images/bishop_${type}.png`, x: 5, y });
-  pieces.push({ image: `assets/images/queen_${type}.png`, x: 3, y });
-  pieces.push({ image: `assets/images/king_${type}.png`, x: 4, y });
+  initialBoardState.push({ image: `assets/images/rook_${type}.png`, x: 0, y });
+  initialBoardState.push({ image: `assets/images/rook_${type}.png`, x: 7, y });
+  initialBoardState.push({ image: `assets/images/knight_${type}.png`, x: 1, y });
+  initialBoardState.push({ image: `assets/images/knight_${type}.png`, x: 6, y });
+  initialBoardState.push({ image: `assets/images/bishop_${type}.png`, x: 2, y });
+  initialBoardState.push({ image: `assets/images/bishop_${type}.png`, x: 5, y });
+  initialBoardState.push({ image: `assets/images/queen_${type}.png`, x: 3, y });
+  initialBoardState.push({ image: `assets/images/king_${type}.png`, x: 4, y });
 }
 // Rendering the Black pawns
 for (let i = 0; i < 8; i++) {
-  pieces.push({ image: "assets/images/pawn_b.png", x: i, y: 6 });
+  initialBoardState.push({ image: "assets/images/pawn_b.png", x: i, y: 6 });
 }
 
 // Rendering the White pawns
 for (let i = 0; i < 8; i++) {
-  pieces.push({ image: "assets/images/pawn_w.png", x: i, y: 1 });
+  initialBoardState.push({ image: "assets/images/pawn_w.png", x: i, y: 1 });
 }
 
 export default function ChessBoard() {
+  // Creating a state for pieces
+  const [pieces, setPieces] = useState<piece[]>(initialBoardState);
   let activePiece: HTMLElement | null = null;
   let chessboardRef = useRef<HTMLDivElement>(null);
 
@@ -57,13 +59,38 @@ export default function ChessBoard() {
     const chessboard = chessboardRef.current;
     if (activePiece && chessboard) {
       // utilizes the active piece and not other peices
+      const minX = chessboard.offsetLeft;
+      const minY = chessboard.offsetTop;
+      const maxX = chessboard.offsetLeft + chessboard.clientWidth - 75;
+      const maxY = chessboard.offsetTop + chessboard.clientHeight - 75;
       const x = e.clientX - 50;
       const y = e.clientY - 50;
       activePiece.style.position = "absolute";
-      const minX = chessboard.offsetLeft;
-      const minY = chessboard.offsetLeft;
-      activePiece.style.left = x < minX ? `${minX}px` : `${x}px`;
-      activePiece.style.top = y < minY ? `${minY}px` : `${y}px`;
+      //If x is smaller than minimum amount
+      if (x < minX) {
+        activePiece.style.left = `${minX}px`;
+      }
+      //If x is bigger than maximum amount
+      else if (x > maxX) {
+        activePiece.style.left = `${maxX}px`;
+      }
+      //If x is in the constraints
+      else {
+        activePiece.style.left = `${x}px`;
+      }
+
+      //If y is smaller than minimum amount
+      if (y < minY) {
+        activePiece.style.top = `${minY}px`;
+      }
+      //If y is bigger than maximum amount
+      else if (y > maxY) {
+        activePiece.style.top = `${maxY}px`;
+      }
+      //If y is in the constraints
+      else {
+        activePiece.style.top = `${y}px`;
+      }
     }
   }
 
