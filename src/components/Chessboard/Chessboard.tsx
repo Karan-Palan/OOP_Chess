@@ -19,10 +19,26 @@ for (let p = 0; p < 2; p++) {
   const y = p === 0 ? 7 : 0;
   initialBoardState.push({ image: `assets/images/rook_${type}.png`, x: 0, y });
   initialBoardState.push({ image: `assets/images/rook_${type}.png`, x: 7, y });
-  initialBoardState.push({ image: `assets/images/knight_${type}.png`, x: 1, y });
-  initialBoardState.push({ image: `assets/images/knight_${type}.png`, x: 6, y });
-  initialBoardState.push({ image: `assets/images/bishop_${type}.png`, x: 2, y });
-  initialBoardState.push({ image: `assets/images/bishop_${type}.png`, x: 5, y });
+  initialBoardState.push({
+    image: `assets/images/knight_${type}.png`,
+    x: 1,
+    y,
+  });
+  initialBoardState.push({
+    image: `assets/images/knight_${type}.png`,
+    x: 6,
+    y,
+  });
+  initialBoardState.push({
+    image: `assets/images/bishop_${type}.png`,
+    x: 2,
+    y,
+  });
+  initialBoardState.push({
+    image: `assets/images/bishop_${type}.png`,
+    x: 5,
+    y,
+  });
   initialBoardState.push({ image: `assets/images/queen_${type}.png`, x: 3, y });
   initialBoardState.push({ image: `assets/images/king_${type}.png`, x: 4, y });
 }
@@ -37,14 +53,26 @@ for (let i = 0; i < 8; i++) {
 }
 
 export default function ChessBoard() {
+  const [activePiece, setActivePiece] = useState<HTMLElement>(null);
+  const [gridX, setGridX] = useState(0);
+  const [gridY, setGirdY] = useState(0);
   // Creating a state for pieces
   const [pieces, setPieces] = useState<piece[]>(initialBoardState);
-  let activePiece: HTMLElement | null = null;
   let chessboardRef = useRef<HTMLDivElement>(null);
 
   function grabPiece(e: React.MouseEvent<HTMLDivElement, MouseEvent>) {
     const element = e.target as HTMLElement;
-    if (element.classList.contains("chess-piece")) {
+    const chessboard = chessboardRef.current;
+    if (element.classList.contains("chess-piece") && chessboard) {
+      const updatedGridX = Math.floor(
+        (e.clientX - chessboard.offsetLeft) / 100
+      ); // gives value in 100,hence division
+      const updatedGridY = Math.abs(
+        Math.ceil((e.clientY - chessboard.offsetTop - 800) / 100)
+      ); // Substracts 800 for 0.0 to start a left bottom
+      setGridX(updatedGridX);
+      setGirdY(updatedGridY);
+
       const x = e.clientX - 50;
       const y = e.clientY - 50;
       element.style.position = "absolute";
@@ -52,7 +80,7 @@ export default function ChessBoard() {
       element.style.top = `${y}px`;
     }
 
-    activePiece = element; //recognizes it as the active piece
+    setActivePiece(element); //recognizes it as the active piece
   }
 
   function movePiece(e: React.MouseEvent) {
@@ -66,12 +94,9 @@ export default function ChessBoard() {
       const x = e.clientX - 50;
       const y = e.clientY - 50;
       activePiece.style.position = "absolute";
-      //If x is smaller than minimum amount
       if (x < minX) {
         activePiece.style.left = `${minX}px`;
-      }
-      //If x is bigger than maximum amount
-      else if (x > maxX) {
+      } else if (x > maxX) {
         activePiece.style.left = `${maxX}px`;
       }
       //If x is in the constraints
@@ -79,12 +104,9 @@ export default function ChessBoard() {
         activePiece.style.left = `${x}px`;
       }
 
-      //If y is smaller than minimum amount
       if (y < minY) {
         activePiece.style.top = `${minY}px`;
-      }
-      //If y is bigger than maximum amount
-      else if (y > maxY) {
+      } else if (y > maxY) {
         activePiece.style.top = `${maxY}px`;
       }
       //If y is in the constraints
@@ -95,9 +117,25 @@ export default function ChessBoard() {
   }
 
   function dropPiece(e: React.MouseEvent) {
-    if (activePiece) {
-      activePiece = null;
+    const chessboard = chessboardRef.current;
+    if (activePiece && chessboard) {
+      const x = Math.floor((e.clientX - chessboard.offsetLeft) / 100);
+      const y = Math.abs(
+        Math.ceil((e.clientY - chessboard.offsetTop - 800) / 100)
+      );
+
+      setPieces((value) => {
+        const pieces = value.map((p) => {
+          if (p.x === gridX && p.y === gridY) {
+            p.x = x; // Update the x-coordinate
+            p.y = y; // Update the y-coordinate
+          }
+          return p; // Return the updated or unchanged piece
+        });
+        return pieces; // Return the updated array
+      });
     }
+    setActivePiece(null); //set null as not activePiece
   }
   let board = [];
   for (let j = verticalAxis.length - 1; j >= 0; j--) {

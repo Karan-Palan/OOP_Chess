@@ -117,13 +117,52 @@ function dropPiece(e: React.MouseEvent) {
 
 useRef - similiar to state, it persists between re-renders however does not re-render the component. You never want to set the value using ref as it does not update the state
 
-Logged the chessboard ref to get offsetX and Y
+Logged the chessboard ref to get offsetX and Y. offset is the mouse relative position to its values.
 
 ```tsx
 const minX = chessboard.offsetLeft;
 const minY = chessboard.offsetLeft;
 activePiece.style.left = x < minX ? `${minX}px` : `${x}px`;
 activePiece.style.top = y < minY ? `${minY}px` : `${y}px`;
+```
+
+The math.floor() function rounds a number down to the nearest integer, while the math.ceil() function rounds a number up to the nearest integer
+
+Implementing grid snapping:
+
+```tsx
+//1. Create inital states:
+const [activePiece, setActivePiece] = useState<HTMLElement>(null);
+const [gridX, setGridX] = useState(0);
+const [gridY, setGirdY] = useState(0);
+// 2. Update grabPiece fnc. :
+if (element.classList.contains("chess-piece") && chessboard) {
+  const updatedGridX = Math.floor((e.clientX - chessboard.offsetLeft) / 100); // gives value in 100,hence division
+  const updatedGridY = Math.abs(
+    Math.ceil((e.clientY - chessboard.offsetTop - 800) / 100)
+  ); // Substracts 800 for 0.0 to start a left bottom
+  setGridX(updatedGridX);
+  setGirdY(updatedGridY);
+// 3. Update the piece and pieces array :
+  if (activePiece && chessboard) {
+    const x = Math.floor((e.clientX - chessboard.offsetLeft) / 100);
+    const y = Math.abs(
+      Math.ceil((e.clientY - chessboard.offsetTop - 800) / 100)
+    );
+
+    setPieces((value) => {
+      const pieces = value.map((p) => {
+        if (p.x === gridX && p.y === gridY) {
+          p.x = x; // Update the x-coordinate
+          p.y = y; // Update the y-coordinate
+        }
+        return p; // Return the updated or unchanged piece
+      });
+      return pieces; // Return the updated array
+    });
+  }
+  setActivePiece(null); //set null as not activePiece
+}
 ```
 
 </details>
